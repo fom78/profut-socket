@@ -1,7 +1,7 @@
 from os import environ
 from dotenv import load_dotenv, find_dotenv
 from flask import Flask, request
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room
 from colorama import Fore, init
 
 init()
@@ -35,19 +35,16 @@ def saludo():
 
 @socketio.on('login')
 def guardar_id(data):
-  print('·····························'+str(data))
+  print(f'''{Fore.GREEN}·····························\n
+  {str(data)}\n
+  {Fore.RESET}
+  ''')
   # print(f'{Fore.GREEN}id socket: {data["socket_id"]}\nid usuario: {data["user_id"]}{Fore.RESET}')
   print(f"Listado de usuarios con clientes abiertos")
-  # for u in usuarios.keys():
-  #   # Chequeamos si id de usuario ya existe, o sea ya hay un cliente, cerramos esa conexion.
-  #   if usuarios[u] == data["user_id"]:
-  #     print(f'{Fore.RED}{u} : {usuarios[u]}{Fore.RESET}')
-  #     usuarios.pop(u)
-  #   else:
-  #     print(f'{Fore.GREEN}{u} : {usuarios[u]}{Fore.RESET}')
+  
   # Agregamos la nueva conexion.
   usuarios[request.sid] = data["user_id"]
-  
+  # join_room('room')
   # Mostramos listado
   for u in usuarios.keys():
     print(f'{Fore.GREEN}{u} : {usuarios[u]}{Fore.RESET}')
@@ -56,30 +53,28 @@ def guardar_id(data):
 
 @socketio.on('message')
 def handle_message(data):
-    print(f'·············received message: {data} ···················')
-    print(f'{request.sid}')
-    print(f'·············received message: {data} ···················')
+
+    print(f'''{Fore.RED}·············received message: {data} ···················\n)
+    TIPO {type(data[0])}\n{data[0]}
+    ································{Fore.RESET}''')
     dato=f"Enviando desde back en flask para user {request.sid}"
     hacer = True
-    print(f"{Fore.CYAN} Usuarios: {len(usuarios)} {Fore.RESET}")
+    print(f"""{Fore.CYAN} Usuarios: {len(usuarios)} \n
+    usuarios socketid:
+    {str(usuarios)}
+    {Fore.RESET}
+    """)
 
     for u in usuarios.keys():
       if hacer:
-        print(f"{Fore.CYAN} Enviando a {usuarios[u]} {Fore.RESET}")
-        print(u)
-        emit('update',dato,room=u)
-        emit('update','ZZZZZZZZZZZZZZZZZZZZZZZ',broadcast= True)
+        print(f"{Fore.CYAN} Enviando a {usuarios[u]} - {u} {Fore.RESET}")
+        emit('update',{'msg':'XXXXXXXXXX','id':u},to=u)
+        emit('update',{'msg':'QQQQQQ','id':u},broadcast=True)
       hacer=not hacer
-
-@socketio.on('update_user')
-def update(data):
-  print(f"####### Enviar dato a un usuario particular segun id #####")
-  # socketio.emit('update',)
 
 @socketio.on('disconnect')
 def desconectar():
-  print(Fore.YELLOW + 'DESCONECTAR se disparo' + Fore.RESET)
-  print(request.sid)
+  print(f'{Fore.YELLOW} DESCONECTAR se disparo {Fore.RESET}\n{request.sid}')
   if request.sid in usuarios.keys():
     deleted = usuarios.pop(request.sid)
     print(f'{Fore.RED}Desconectado {request.sid} con id: {deleted}{Fore.RESET}')
