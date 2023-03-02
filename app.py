@@ -35,42 +35,27 @@ def saludo():
 
 @socketio.on('login')
 def guardar_id(data):
-  print(f'''{Fore.GREEN}·····························\n
-  {str(data)}\n
-  {Fore.RESET}
-  ''')
-  # print(f'{Fore.GREEN}id socket: {data["socket_id"]}\nid usuario: {data["user_id"]}{Fore.RESET}')
   print(f"Listado de usuarios con clientes abiertos")
   
   # Agregamos la nueva conexion.
   usuarios[request.sid] = data["user_id"]
-  # join_room('room')
   # Mostramos listado
   for u in usuarios.keys():
     print(f'{Fore.GREEN}{u} : {usuarios[u]}{Fore.RESET}')
   print(f"{Fore.BLUE}Cantidad de clientes: {len(usuarios)}{Fore.RESET}")
     
 
-@socketio.on('message')
-def handle_message(data):
+@socketio.on('update_users')
+def handle_update_users(data):
 
-    print(f'''{Fore.RED}·············received message: {data} ···················\n)
-    TIPO {type(data[0])}\n{data[0]}
+    print(f'''{Fore.RED}·············Actualizar Usuarios···················\n)
+    Cantidad: {len(data)}, chequear cuantos estan con clientes abiertos\n
     ································{Fore.RESET}''')
-    dato=f"Enviando desde back en flask para user {request.sid}"
-    hacer = True
-    print(f"""{Fore.CYAN} Usuarios: {len(usuarios)} \n
-    usuarios socketid:
-    {str(usuarios)}
-    {Fore.RESET}
-    """)
-
-    for u in usuarios.keys():
-      if hacer:
-        print(f"{Fore.CYAN} Enviando a {usuarios[u]} - {u} {Fore.RESET}")
-        emit('update',{'msg':'XXXXXXXXXX','id':u},to=u)
-        emit('update',{'msg':'QQQQQQ','id':u},broadcast=True)
-      hacer=not hacer
+    for usuario in data:
+      for u in usuarios.keys():
+        if usuario['_id'] == usuarios[u]: 
+          print(f"{Fore.BLUE} Enviando a {usuarios[u]} - {u} {Fore.RESET}")
+          emit('update',usuario,to=u)
 
 @socketio.on('disconnect')
 def desconectar():
