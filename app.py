@@ -1,12 +1,13 @@
 from os import environ
-from dotenv import load_dotenv, find_dotenv
+from dotenv import load_dotenv
 from flask import Flask, request
 from flask_socketio import SocketIO, emit, join_room
 from colorama import Fore, init
 
 init()
 
-load_dotenv(find_dotenv())
+# load_dotenv(find_dotenv())
+load_dotenv()  # take environment variables from .env.
 app = Flask(__name__)
 
 # Configuracion
