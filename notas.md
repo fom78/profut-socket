@@ -1,3 +1,5 @@
+Host:
+https://profut-socket-production.up.railway.app/
 
 creamos entorno virtual
 
